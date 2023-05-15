@@ -24,15 +24,21 @@ if(!("Projects"%in%list.files(projectResultsDir))){
 
 if(!(ProjectName%in%list.files(paste0(projectResultsDir,"Projects/")))){
   dir.create(file.path(paste0(projectResultsDir,"Projects/",ProjectName)),showWarnings = F)
-  }
+}
+
+if(!("DashboardData"%in%list.files(paste0(projectResultsDir,"Projects/",ProjectName,"/")))){
+  dir.create(file.path(projectResultsDir,"Projects/",ProjectName,"/DashboardData/"),showWarnings = F)
+}
 
 ##################################################################################
 # -- 4. Check for country folder, if doesn't exist, add all necessary folders -- #
 ##################################################################################
 SAE_Project_Country<-paste0(projectResultsDir,"Projects/",ProjectName,"/",country)
+SAE_Project_Model_Results<-paste0(projectResultsDir,"Projects/",ProjectName,"/DashboardData/",country)
 
 if(!(country%in%list.files(paste0(projectResultsDir,"Projects/",ProjectName,"/")))){
   dir.create(file.path(SAE_Project_Country),showWarnings = F)
+  dir.create(file.path(SAE_Project_Model_Results),showWarnings = F)
   dir.create(file.path(paste0(SAE_Project_Country,"/Figures")),showWarnings = F)
   dir.create(file.path(paste0(SAE_Project_Country,"/Results")),showWarnings = F)
   dir.create(file.path(paste0(SAE_Project_Country,"/IntermediateData")),showWarnings = F)
@@ -40,12 +46,13 @@ if(!(country%in%list.files(paste0(projectResultsDir,"Projects/",ProjectName,"/")
   dir.create(file.path(paste0(SAE_Project_Country,"/ModelResults")),showWarnings = F)
   dir.create(file.path(paste0(SAE_Project_Country,"/SelectedModel")),showWarnings = F)
   dir.create(file.path(paste0(SAE_Project_Country,"/logfiles")),showWarnings = F)
+  dir.create(file.path(paste0(SAE_Project_Model_Results,"/ModelResults")),showWarnings = F)
 }
 
 ##########################################
 # -- 5. Loading general use functions -- #
 ##########################################
-General_Dir<-paste0(codeRepoName,"General_utils/")
+General_Dir<-"General_utils/"
 Gen_file_sources = paste0(SAEDir,General_Dir,
                           list.files(paste0(SAEDir,General_Dir),
                                      pattern="*.R"))
@@ -55,13 +62,10 @@ quiet(sapply(Gen_file_sources,source,.GlobalEnv))
 #################################################
 # -- 6. Loading in the project-specific files - #
 #################################################
-Project_Dir<-paste0(codeRepoName,"Project_specific_utils/",ProjectName,"/")
 
-Proj_file_sources = paste0(SAEDir,
-                           Project_Dir,list.files(paste0(SAEDir,Project_Dir),
-                                                  pattern="*.R"))
-if(length(list.files(Project_Dir))==0){
-  warning(paste0("There are currently no project specific functions for this project in ",Project_Dir,"."))
+Proj_file_sources = list.files(path=project_path,pattern="*.R",full.names=TRUE)[!list.files(path=project_path,pattern="*.R") == 'project_config.R']
+if(length(list.files(project_path))==0){
+  warning(paste0("There are currently no project specific functions for this project in ",project_path,"."))
 }else quiet(sapply(Proj_file_sources,source,.GlobalEnv))
 
 ################################
@@ -80,6 +84,9 @@ RawDatafilelocation = paste0(RawDataDir,"RawData/")
 
 ## ModelResults location
 ModelResultsfilelocation = paste0(SAE_Project_Country,"/ModelResults/")
+
+## Dashboard ModelResults location
+DashboardModelResultsfilelocation = paste0(SAE_Project_Model_Results,"/ModelResults/")
 
 ## SelectedModel location
 SelectedModelfilelocation = paste0(SAE_Project_Country,"/SelectedModel/")
@@ -101,27 +108,27 @@ pathToFigures=paste0(projectResultsDir,"Projects/",ProjectName,"/Africa/")
 
 ## Special survey extraction functions
 
-pathToSpecialSurveyExtraction = paste0(SAEDir,codeRepoName,"General_utils/specialSurveyExtractionFunctions/")
+pathToSpecialSurveyExtraction = paste0(SAEDir,"General_utils/specialSurveyExtractionFunctions/")
 
 ## Path to Africa maps 
 if(exists("PlotAllOfAfrica")&&PlotAllOfAfrica){
-pathToFiguresForContinent = paste0(projectResultsDir,"Projects/",ProjectName,"/AfricaMaps/")
-dir.create(file.path(pathToFiguresForContinent),showWarnings = F)
+  pathToFiguresForContinent = paste0(projectResultsDir,"Projects/",ProjectName,"/AfricaMaps/")
+  dir.create(file.path(pathToFiguresForContinent),showWarnings = F)
 }
 ## Path to Africa maps 
 if(exists("PlotDiffAllOfAfrica")&&PlotDiffAllOfAfrica){
-pathToFiguresForContinentDiff = paste0(projectResultsDir,"Projects/",ProjectName,"/AfricaMapsDiff/")
-dir.create(file.path(pathToFiguresForContinentDiff),showWarnings = F)
+  pathToFiguresForContinentDiff = paste0(projectResultsDir,"Projects/",ProjectName,"/AfricaMapsDiff/")
+  dir.create(file.path(pathToFiguresForContinentDiff),showWarnings = F)
 }
 ## Path to OP maps 
 if(exists("PlotOPCountries")&&PlotOPCountries){
-pathToFiguresForOP= paste0(projectResultsDir,"Projects/",ProjectName,"/OPMaps/")
-dir.create(file.path(pathToFiguresForOP),showWarnings = F)
+  pathToFiguresForOP= paste0(projectResultsDir,"Projects/",ProjectName,"/OPMaps/")
+  dir.create(file.path(pathToFiguresForOP),showWarnings = F)
 }
 ## Path to OP Diff maps 
 if(exists("PlotDiffOPCountries")&&PlotDiffOPCountries){
-pathToFiguresForDiffOP= paste0(projectResultsDir,"Projects/",ProjectName,"/OPDiffMaps/")
-dir.create(file.path(pathToFiguresForDiffOP),showWarnings = F)
+  pathToFiguresForDiffOP= paste0(projectResultsDir,"Projects/",ProjectName,"/OPDiffMaps/")
+  dir.create(file.path(pathToFiguresForDiffOP),showWarnings = F)
 }
 ## Path to project directory
 
