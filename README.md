@@ -22,47 +22,60 @@ The framework separates the code from the rawdata and the output folders. The ra
 
 ## Starting a new project
 
-Starting a new project is fairly easy.  There is a master main file at the head of the code; this R script is an example of how to run the entire modeling pipeline and produce some plots of the outputs.  The current example *should* be executable for examples in the family planning space.  You need to set the working directory, where the raw data is located (after downloading the associated DHS and shapefile data), and modify the config_paths.R for your own setup.  There is also a line to define the project configuration file.  There are several example configuration files in the folder to start with.  I have provided a surveyCodeBook.xlsx that lists the DHS files that are included in this project and the corresponding stratification variables.  That file is located in the general utilities folder in the repository here; you may need to change the variable pathToMasterSurveyList in the Config_project.R depending on where you store that file.  
+### Virtual Machine Setup
+1. Spin up a Windows VM. Our VM currently has 32GB, 8 cores, and a 80GB drive. We will be increasing this, however, for our needs.
+2. Install Git (if using a github repository). The default setup settings can be used. For this step and the following installation steps, if security settings do not allow you to install directly on the VM, you may download the standalone installer on your local laptop, copy it to the VM, and then install.
+3. Install R for Windows (default setup settings are fine).
+4. Install R Studio (default setup settings are fine).
 
-Creating a new configuration file requires two parts:  a configuration input file and adding project specific utils required for the framework.  At this point, there is only one required file called add_DHS_indicators.R in the project specific utils.  In this file, you, as a user, must translate the survey codes to the variable names that were exactly described in the configuration file.  This is for both the outcome survey indicators and the demographic subgroups.    
+### R environment Setup
+1. Choose a desired location in your user directory for the repo to live. Create an "SAE" directory (i.e. 'C:\Users\jsmith\SAE), and within this directory clone or copy the "SmallAreaEstimationForSurveyIndicators" repo to that directory.
+     Note: if using 'git clone', you will need to verify your git credentials via token or browser authentication.
+2. If you want to switch to a remote branch on the repository, you can use the following command in Git CMD bash terminal:
+     git checkout --track origin/<branch_name>
+3. Copy or create a 'RawData' directory within the "SmallAreaEstimationForSurveyIndicators" directory (or in a desired location). This will contain the raw survey data that is used by the Main.R script for processing and model fitting. This directory should have the following:
+     1)'DHS' folder - contains the DHS survey data, with a folder per DHS code. 
+     2)'shapefiles' folder - contains shapefile data for each country being run, organized by a folder per country.
+     3)'surveyCodeBook.xlsx' file - lists the DHS files that are included in this project and the corresponding stratification variables.
+4. Open an R Studio session (you can use the 64-bit version)
+5. Create a Project from the repo. Go to File > 'New Project' > 'Existing Directory'. Select the 'SmallAreaEstimationForSurveyIndicators' directory (the repo we just cloned)> 'Create Project'
+6. Verify that the latest 'renv.lock' file is present in this directory
+7. Ensure that 'SmallAreaEstimationForSurveyIndicators' is set as your current working directory, and install the package 'renv'. You can do this by typing the following command in the R console: install.packages('renv')
+8. Activate renv to ensure that the project library is made active for newly launched R sessions.
+     In the R console, enter the command "renv::activate()".
+     Type 'y' and Enter to proceed through the initial message.
+     This will then create a 'renv' directory in the working directory that tracks the environment's packages and versions.
+9. Restore the required packages from the renv.lock file by entering the command "renv::restore()". This step will compare the packages and versions in the 'renv.lock' file to the packages currently installed in the library paths & consequently uses that information to retrieve and reinstall those packages in your project if needed (this may take several minutes). It will warn you that INLA cannot be installed (This is because INLA is not in the CRAN library). Type 'y' and hit enter to proceed.
+10. As expected, you'll notice in the logs of the command above that one package, INLA, could not be installed. In order to install this package (and its dependencies), use the following command:
+     install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
+
+### Customizing the R Code to your environment
+In order to run the Main_master.R script, you need to customize a 'env_config.R' file (located in the repo root directory) using the template provided in the SmallAreaEstimationForSurveyIndicators repo. 
+
+The env_config.R file needs the following params to be set in order for the code to be run properly:
+1. project_path - path to the project directory (containing any project function files and the 'project_config.R' file)
+      e.g. "C:/Users/jsmith/SmallAreaEstimationForSurveyIndicators/Project_Examples/FP_Parity/"
+      The 'project_config.R' file may need to be updated to indicate the countries the script is being run against (i.e. "ALL", "Benin", c("Benin","Cameroon"), etc)
+2. SAEDir - full path to the directory where Main.R is located
+      e.g. "C:/Users/jsmith/SAE/SmallAreaEstimationForSurveyIndicators/"
+3. RawDataDir - full path to where the 'RawData' directory lives. Using the setup steps above (if in the repo):
+      e.g. "C:/Users/jsmith/SAE/SmallAreaEstimationForSurveyIndicators/"
+4. codeRepoName - name of the code repository (directory beneath 'SAE' directory) 
+      e.g. "SmallAreaEstimationForSurveyIndicators/"
+5. projectResultsDir - full path of the desired location for the 'Projects' directory that stores the model results when the Main_master.R script is run
+      e.g. "C:/Users/jsmith/SAE/SmallAreaEstimationForSurveyIndicators/"
+
+You may now run the Main.R model script. Please note that in order to run this script, you must have the 'SmallAreaEstimationForSurveyIndicators' repo set as your working directory. Several test project configurations are available for your reference in this repo under the 'Project_Examples' directory. To use each, you may set the 'project_path' variable in env_config.R to the respective project directory.
 
 ## Environment
 
 The following is the current environment I'm using to run the framework. I plan to develop a docker and conda environment for the framework in the future.  
 
-R version 3.6.1 (2019-07-05)
-Platform: x86_64-w64-mingw32/x64 (64-bit)
-Running under: Windows >= 8 x64 (build 9200)
+R version 4.2.2
+Platform: x86_64-w64-mingw32/x64 (64-bit) 
+Running under: Windows 10 x64
 
-Matrix products: default
-
-locale:
-[1] LC_COLLATE=English_United States.1252  LC_CTYPE=English_United States.1252    LC_MONETARY=English_United States.1252
-[4] LC_NUMERIC=C                           LC_TIME=English_United States.1252    
-
-attached base packages:
-[1] parallel  grid      stats     graphics  grDevices utils     datasets  methods   base     
-
-other attached packages:
- [1] mapdata_2.3.0      ggthemes_4.2.0     ggmap_3.0.0        ggplot2_3.3.0      doParallel_1.0.15  doSNOW_1.0.18     
- [7] snow_0.4-3         iterators_1.0.12   foreach_1.4.8      stringr_1.4.0      pracma_2.2.5       spdep_1.1-3       
-[13] sf_0.8-0           spData_0.3.2       gridExtra_2.3      lubridate_1.7.4    mapproj_1.2.6      maps_3.3.0        
-[19] rgdal_1.4-6        RColorBrewer_1.1-2 classInt_0.4-1     raster_3.0-7       plotrix_3.7-6      maptools_0.9-8    
-[25] rgeos_0.5-2        readr_1.3.1        haven_2.3.1        dplyr_0.8.3        ipumsr_0.5.1       INLA_19.09.03     
-[31] sp_1.3-1           survey_3.36        survival_2.44-1.1  Matrix_1.2-17      foreign_0.8-71     readxl_1.3.1      
-[37] ddpcr_1.13        
-
-loaded via a namespace (and not attached):
- [1] nlme_3.1-140        bitops_1.0-6        gmodels_2.18.1      httr_1.4.1          tools_3.6.1         utf8_1.1.4         
- [7] R6_2.4.0            KernSmooth_2.23-15  DBI_1.0.0           colorspace_1.4-1    withr_2.1.2         tidyselect_1.1.1   
-[13] compiler_3.6.1      cli_1.1.0           expm_0.999-4        scales_1.1.0        jpeg_0.1-8.1        pkgconfig_2.0.3    
-[19] rlang_0.4.7         rstudioapi_0.10     gtools_3.8.1        magrittr_1.5        Rcpp_1.0.2          munsell_0.5.0      
-[25] fansi_0.4.0         lifecycle_0.2.0     stringi_1.4.3       yaml_2.2.1          MASS_7.3-51.4       plyr_1.8.6         
-[31] gdata_2.18.0        forcats_0.4.0       crayon_1.3.4        deldir_0.1-23       lattice_0.20-38     splines_3.6.1      
-[37] hms_0.5.1           zeallot_0.1.0       pillar_1.4.2        boot_1.3-22         rjson_0.2.20        codetools_0.2-16   
-[43] LearnBayes_2.15.1   glue_1.3.1          mitools_2.4         vctrs_0.3.2         png_0.1-7           RgoogleMaps_1.4.5.3
-[49] cellranger_1.1.0    gtable_0.3.0        purrr_0.3.2         tidyr_1.0.2         assertthat_0.2.1    e1071_1.7-2        
-[55] coda_0.19-3         class_7.3-15        tibble_2.1.3        units_0.6-5        
+To see a complete list of the packages and their respective versions used, you may reference the renv.lock file in this directory.
 
 
 ## Disclaimer
