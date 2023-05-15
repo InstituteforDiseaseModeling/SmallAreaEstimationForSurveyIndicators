@@ -48,6 +48,7 @@ The framework separates the code from the rawdata and the output folders. The ra
 9. Restore the required packages from the renv.lock file by entering the command "renv::restore()". This step will compare the packages and versions in the 'renv.lock' file to the packages currently installed in the library paths & consequently uses that information to retrieve and reinstall those packages in your project if needed (this may take several minutes). It will warn you that INLA cannot be installed (This is because INLA is not in the CRAN library). Type 'y' and hit enter to proceed.
 10. As expected, you'll notice in the logs of the command above that one package, INLA, could not be installed. In order to install this package (and its dependencies), use the following command:
      install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
+11. Run the following command to install additional packages from CRAN: install.packages(c('ddpcr','readxl','survey','ipumsr','rgeos','maptools','plotrix','raster','rgdal','mapproj','lubridate','doSNOW','ggmap','ggthemes','mapdata'))
 
 ### Customizing the R Code to your environment
 In order to run the Main_master.R script, you need to customize a 'env_config.R' file (located in the repo root directory) using the template provided in the SmallAreaEstimationForSurveyIndicators repo. 
