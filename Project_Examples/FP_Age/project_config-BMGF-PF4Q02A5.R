@@ -13,7 +13,7 @@ country<-"Nigeria"      # This can either be "ALL", "Single Country name" or a l
 mapAdmin<-"admin1"
 
 # Prediction Year:
-predYear <-2008
+predYear <-2025
 startYear<-1990
 
 # sub-groups (age, parity, etc.).  Note, these names must match the sub-group names in

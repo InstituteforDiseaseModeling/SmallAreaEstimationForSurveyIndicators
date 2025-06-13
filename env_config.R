@@ -5,15 +5,19 @@
 # Full path to project directory containing project_config.R and any project-specific functions.
 # Ex: "C:/Users/johnsmith/SAE/SmallAreaEstimationForSurveyIndicators/Project_Examples/FP_Age/"
 project_path <- "insert path here"
+project_path <- "./Project_Examples/FP_Age/"
 
 # Full path to location of the Main.R on your platform
 # Ex: "C:/Users/johnsmith/SAE/SmallAreaEstimationForSurveyIndicators/"
 SAEDir <- "insert path here"
+SAEDir <- "./"
 
 # Full path to directory containing two folders: DHS and shapefiles. Put the required DHS data in the DHS folder and the GADM shapefile data into shapefiles.
 # Ex: "C:/Users/johnsmith/SAE/RawData/"
 RawDataDir <- "insert path here"
+RawDataDir <- "./"
 
 # Full path to desired location of output of each project.
 # Ex: "C:/Users/johnsmith/SAE/ProjectResults/"
 projectResultsDir <- "insert path here"
+projectResultsDir <- "./ProjectResults/"

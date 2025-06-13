@@ -1,44 +1,81 @@
 
-DHS_ExtractionWithGPS<-function(RawDatafilelocation,gps.file,shape,survey.id,
-                                survey.file.ir,survey.file.ch,
-                                strata_vars,id_var,country,surveyYear,pathToIntermediateDataFiles){
+
+#######################
+
+# TEST VARS
+# RawDatafilelocation = paste0(RawDatafilelocation,"DHS/")
+# gps.file = countrySurveyList$GPS_Filename[survey]
+# shape = shape
+# survey.id = countrySurveyList$Survey.ID[survey]
+# survey.file.ir = countrySurveyList$IR_Survey_Filename[survey]
+# survey.file.ch = countrySurveyList$CH_Survey_Filename[survey]
+# strata_vars = as.character(countrySurveyList$strat_var[survey])
+# id_var = as.character(countrySurveyList$id_var[survey])
+# countryName = country
+# surveyYear = as.character(countrySurveyList$Year[survey])
+# pathToIntermediateDataFiles = pathToIntermediateDataFiles
+
+
+#######################
+
+
+DHS_ExtractionWithGPS<-function(RawDatafilelocation,
+                                gps.file,
+                                shape,
+                                survey.id,
+                                survey.file.ir,
+                                survey.file.ch,
+                                strata_vars,
+                                id_var,
+                                country,
+                                surveyYear,
+                                pathToIntermediateDataFiles){
 
 # Purpose of this function: This function extracts the DHS data, overlays with the GPS data, and computes the direct estimates
-  
+
 ##############################################
 # -- Read in the GPS points and shapefile -- #
 ##############################################
 # using quiet() with this function does not work.
   # paste0(RawDatafilelocation,"DHS/")
 
-pts<- readOGR(paste0(RawDatafilelocation, gps.file), layer = gps.file)
+# pts <- readOGR(paste0(RawDatafilelocation, gps.file), layer = gps.file)
+pts <- sf::st_read(dsn = paste0(RawDatafilelocation, gps.file), layer = gps.file)
 
 #pts<- readOGR(paste0(paste0(RawDatafilelocation,"DHS/"), gps.file), layer = gps.file)
 ##### IS THIS NECESSARY?
 # adding a row number to the shape object, will be handy for plotting later on
-shape@data$row_num<-1:nrow(shape@data)
+# shape@data$row_num<-1:nrow(shape@data)
+shape$row_num <- 1:nrow(shape)
+
 
 # Assign the cluster locations to most accurate shapefile state names
-x<-over(SpatialPoints(coordinates(pts),proj4string = shape@proj4string), shape)
+# x <- over(SpatialPoints(coordinates(pts),proj4string = shape@proj4string), shape)
+x <- sf::st_join(pts, shape)
 
 # is this necessary?
 #GPS_Cluster_key<-data.frame(v001=pts@data[,c("DHSCLUST")],state=x$dot_name,row_num=x$row_num)
-GPS_Cluster_key<-data.frame(v001=as.numeric(pts@data[,c("DHSCLUST")]),state=x$dot_name,row_num=x$row_num)
+# GPS_Cluster_key<-data.frame(v001=as.numeric(pts@data[,c("DHSCLUST")]),state=x$dot_name,row_num=x$row_num)
+GPS_Cluster_key <- data.frame(
+  v001 = as.numeric(pts$DHSCLUST),
+  state = x$NAME_1,
+  row = x$row_num
+)
 
 ##############################################
 # -- read individual recode data from DHS -- #
 ##############################################
 #system.time({
 #paste0(RawDatafilelocation,"DHS/")
-dhs<-read_dta(paste0(RawDatafilelocation,survey.file.ir,"DT/",survey.file.ir,"FL.DTA"))
-dhs_ch<-read_dta(paste0(RawDatafilelocation,survey.file.ch,"DT/",survey.file.ch,"FL.DTA"))
+dhs <- read_dta(paste0(RawDatafilelocation, survey.file.ir, "DT/", survey.file.ir, "FL.DTA"))
+dhs_ch <- read_dta(paste0(RawDatafilelocation, survey.file.ch, "DT/", survey.file.ch, "FL.DTA"))
 # dhs<-read_dta(paste0( paste0(RawDatafilelocation,"DHS/"),survey.file.ir,"DT/",survey.file.ir,"FL.DTA"))
 # dhs_ch<-read_dta(paste0( paste0(RawDatafilelocation,"DHS/"),survey.file.ch,"DT/",survey.file.ch,"FL.DTA"))
 #})
 #dim(dhs)
 # -- merge the key in with the dhs data -- #
-dhs<-dhs%>%left_join(GPS_Cluster_key)
-dhs_ch<-dhs_ch%>%left_join(GPS_Cluster_key)
+dhs <- dhs %>% left_join(GPS_Cluster_key)
+dhs_ch <- dhs_ch %>% left_join(GPS_Cluster_key)
 # should still have the same number of rows
 #dim(dhs)
 
@@ -87,11 +124,11 @@ dhs<-add_DHS_indicators(dhs,dhs_ch,survey.id)
 #dhs<-dhs%>%left_join(strata)
 
 #my.svydesign <- svydesign(id= ~v001,
-#                          strata=~strata,nest=T, 
+#                          strata=~strata,nest=T,
 #                          weights= ~wt, data=dhs)
 
 my.svydesign <- svydesign(id= as.formula(paste0("~",id_var)),
-                          strata=as.formula(paste0("~",strata_vars)),nest=T, 
+                          strata=as.formula(paste0("~",strata_vars)),nest=T,
                           weights= ~wt, data=dhs)
 
 
@@ -99,12 +136,12 @@ my.svydesign <- svydesign(id= as.formula(paste0("~",id_var)),
 ## Compute direct estimates and SEs  ###################
 ########################################################
 
-final <- compute_direct_estimates(my.svydesign,indicators,sub_groups=unique(dhs$subgroup),states=as.character(shape@data$dot_name),dhs)
-final$year<-surveyYear
-final$recode<-dhs$recode[1]
-final$country<-country
-final$survey<-paste0("DHS_",surveyYear)
+final <- compute_direct_estimates(my.svydesign, indicators, sub_groups=unique(dhs$subgroup), states=as.character(shape$NAME_1), dhs)
+final$year <- surveyYear
+final$recode <- dhs$recode[1]
+final$country <- country
+final$survey <- paste0("DHS_",surveyYear)
 
-write_excel_csv(final, paste0(pathToIntermediateDataFiles,"Processed_",country,surveyYear,"_",mapAdmin,".csv"))
+write_excel_csv(final, paste0(pathToIntermediateDataFiles,"Processed_", country, surveyYear, "_", mapAdmin, ".csv"))
 
 }

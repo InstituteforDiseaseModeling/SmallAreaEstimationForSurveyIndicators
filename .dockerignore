@@ -1,0 +1,9 @@
+ProjectResults/
+RawData/
+.gitignore
+Dockerfile
+.Rhistory
+dep_libs/
+.cache/
+.config/
+.local/

@@ -7,9 +7,12 @@ library(dplyr);library(haven);library(readr)
 options(survey.lonely.psu="adjust")
 
 # -- packages -- #
-library(rgeos); library(maptools); library(plotrix); library(raster);library(sp)
-library(classInt); library(RColorBrewer); 
-library(grDevices); library(rgdal)
+#library(rgeos);
+#library(maptools);
+library(plotrix); library(raster);library(sp)
+library(classInt); library(RColorBrewer);
+library(grDevices);
+#library(rgdal)
 library(mapproj); library(lubridate); library(grid)
 library(gridExtra);library(spdep)
 library(pracma);library(stringr);library(ddpcr)

@@ -1,6 +1,6 @@
 #########################################################################
 ####
-#### This folder will 
+#### This folder will
 #### 3. Check to see if the Project Folder exist, if not, create it
 #### 4. Check if country folder within project exists, if not, create it and
 ####   a. Intermediate data
@@ -11,7 +11,7 @@
 #### 6. Load project specific functions
 #### 7. Set paths
 ####
-#### 
+####
 #########################################################################
 
 #########################################################################
@@ -72,10 +72,13 @@ if(length(list.files(project_path))==0){
 # -- 7. Set necessary paths -- #
 ################################
 
-## Shapefiles 
+## Shapefiles
 #shapeFilePath = paste0(RawDataDir,"RawData/shapefiles/",country,"/",country,"_l",substring(mapAdmin,6,6),"_shapes")
 shapeFilePath = paste0(RawDataDir,"RawData/shapefiles/",country)
-shapefilelayer = paste0(country,"_l",substring(mapAdmin,6,6),"_shapes")
+# shapefilelayer = paste0(country,"_l",substring(mapAdmin,6,6),"_shapes")
+shapefilelayer = "gadm41_NGA_1"
+
+
 ## GPS location
 GPSfilelocation = paste0(RawDataDir,"RawData/DHS/")
 
@@ -110,22 +113,22 @@ pathToFigures=paste0(projectResultsDir,"Projects/",ProjectName,"/Africa/")
 
 pathToSpecialSurveyExtraction = paste0(SAEDir,"General_utils/specialSurveyExtractionFunctions/")
 
-## Path to Africa maps 
+## Path to Africa maps
 if(exists("PlotAllOfAfrica")&&PlotAllOfAfrica){
   pathToFiguresForContinent = paste0(projectResultsDir,"Projects/",ProjectName,"/AfricaMaps/")
   dir.create(file.path(pathToFiguresForContinent),showWarnings = F)
 }
-## Path to Africa maps 
+## Path to Africa maps
 if(exists("PlotDiffAllOfAfrica")&&PlotDiffAllOfAfrica){
   pathToFiguresForContinentDiff = paste0(projectResultsDir,"Projects/",ProjectName,"/AfricaMapsDiff/")
   dir.create(file.path(pathToFiguresForContinentDiff),showWarnings = F)
 }
-## Path to OP maps 
+## Path to OP maps
 if(exists("PlotOPCountries")&&PlotOPCountries){
   pathToFiguresForOP= paste0(projectResultsDir,"Projects/",ProjectName,"/OPMaps/")
   dir.create(file.path(pathToFiguresForOP),showWarnings = F)
 }
-## Path to OP Diff maps 
+## Path to OP Diff maps
 if(exists("PlotDiffOPCountries")&&PlotDiffOPCountries){
   pathToFiguresForDiffOP= paste0(projectResultsDir,"Projects/",ProjectName,"/OPDiffMaps/")
   dir.create(file.path(pathToFiguresForDiffOP),showWarnings = F)
