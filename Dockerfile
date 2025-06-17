@@ -1,5 +1,5 @@
 # File name: Dockerfile
-FROM rocker/rstudio:latest
+FROM rocker/rstudio:4.4.2
 
 # INSTALL DEPENDENCIES
 RUN sudo apt-get update -y && sudo apt-get install -y \
